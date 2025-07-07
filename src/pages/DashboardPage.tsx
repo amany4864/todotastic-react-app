@@ -1,0 +1,251 @@
+
+import React, { useState, useEffect } from 'react';
+import { Todo, todoService, CreateTodoData, UpdateTodoData } from '../services/todoService';
+import TodoCard from '../components/TodoCard';
+import TodoForm from '../components/TodoForm';
+import { Plus, Filter, Search } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+type FilterType = 'all' | 'active' | 'completed';
+
+const DashboardPage: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<Todo | undefined>();
+  const [formLoading, setFormLoading] = useState(false);
+  const [filter, setFilter] = useState<FilterType>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  useEffect(() => {
+    filterTodos();
+  }, [todos, filter, searchQuery]);
+
+  const fetchTodos = async () => {
+    try {
+      const fetchedTodos = await todoService.getTodos();
+      setTodos(fetchedTodos);
+    } catch (error) {
+      console.error('Failed to fetch todos:', error);
+      toast.error('Failed to load todos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterTodos = () => {
+    let filtered = todos;
+
+    // Filter by completion status
+    switch (filter) {
+      case 'active':
+        filtered = filtered.filter(todo => !todo.completed);
+        break;
+      case 'completed':
+        filtered = filtered.filter(todo => todo.completed);
+        break;
+      default:
+        // 'all' - no filtering needed
+        break;
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(todo =>
+        todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (todo.description && todo.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    setFilteredTodos(filtered);
+  };
+
+  const handleCreateTodo = async (data: CreateTodoData) => {
+    setFormLoading(true);
+    try {
+      const newTodo = await todoService.createTodo(data);
+      setTodos(prev => [newTodo, ...prev]);
+      setShowForm(false);
+      toast.success('Todo created successfully!');
+    } catch (error) {
+      console.error('Failed to create todo:', error);
+      toast.error('Failed to create todo');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleUpdateTodo = async (data: UpdateTodoData) => {
+    if (!editingTodo) return;
+
+    setFormLoading(true);
+    try {
+      const updatedTodo = await todoService.updateTodo(editingTodo.id, data);
+      setTodos(prev => prev.map(todo => 
+        todo.id === editingTodo.id ? updatedTodo : todo
+      ));
+      setEditingTodo(undefined);
+      toast.success('Todo updated successfully!');
+    } catch (error) {
+      console.error('Failed to update todo:', error);
+      toast.error('Failed to update todo');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteTodo = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this todo?')) {
+      return;
+    }
+
+    try {
+      await todoService.deleteTodo(id);
+      setTodos(prev => prev.filter(todo => todo.id !== id));
+      toast.success('Todo deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete todo:', error);
+      toast.error('Failed to delete todo');
+    }
+  };
+
+  const handleToggleComplete = async (id: number, completed: boolean) => {
+    try {
+      const updatedTodo = await todoService.updateTodo(id, { completed });
+      setTodos(prev => prev.map(todo => 
+        todo.id === id ? updatedTodo : todo
+      ));
+      toast.success(completed ? 'Todo completed!' : 'Todo reopened!');
+    } catch (error) {
+      console.error('Failed to update todo:', error);
+      toast.error('Failed to update todo');
+    }
+  };
+
+  const handleEditTodo = (todo: Todo) => {
+    setEditingTodo(todo);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingTodo(undefined);
+  };
+
+  const activeTodosCount = todos.filter(todo => !todo.completed).length;
+  const completedTodosCount = todos.filter(todo => todo.completed).length;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Todos</h1>
+        <div className="flex items-center space-x-6 text-sm text-gray-600">
+          <span>{activeTodosCount} active</span>
+          <span>{completedTodosCount} completed</span>
+          <span>{todos.length} total</span>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="mb-8 flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search todos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Filter className="w-5 h-5 text-gray-400" />
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as FilterType)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <button
+          onClick={() => setShowForm(true)}
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Add Todo
+        </button>
+      </div>
+
+      {/* Todos Grid */}
+      {filteredTodos.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-gray-400 mb-4">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <Plus className="w-8 h-8" />
+            </div>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            {searchQuery || filter !== 'all' ? 'No todos found' : 'No todos yet'}
+          </h3>
+          <p className="text-gray-500 mb-4">
+            {searchQuery || filter !== 'all' 
+              ? 'Try adjusting your search or filter.' 
+              : 'Get started by creating your first todo.'
+            }
+          </p>
+          {!searchQuery && filter === 'all' && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add Your First Todo
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredTodos.map((todo) => (
+            <TodoCard
+              key={todo.id}
+              todo={todo}
+              onEdit={handleEditTodo}
+              onDelete={handleDeleteTodo}
+              onToggleComplete={handleToggleComplete}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Todo Form Modal */}
+      {(showForm || editingTodo) && (
+        <TodoForm
+          todo={editingTodo}
+          onSubmit={editingTodo ? handleUpdateTodo : handleCreateTodo}
+          onCancel={handleCloseForm}
+          isLoading={formLoading}
+        />
+      )}
+    </div>
+  );
+};
+
+export default DashboardPage;
