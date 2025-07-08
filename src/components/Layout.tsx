@@ -2,6 +2,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { LogOut, User, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,11 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
@@ -23,10 +29,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </h1>
               </div>
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-gray-300">
+                <button
+                  onClick={handleProfileClick}
+                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                >
                   <User className="w-5 h-5 text-blue-400" />
-                  <span className="text-sm font-medium">{user.email}</span>
-                </div>
+                  <span className="text-sm font-medium">
+                    {user.username || user.email.split('@')[0]}
+                  </span>
+                </button>
                 <button
                   onClick={logout}
                   className="inline-flex items-center px-3 py-2 border border-gray-600 text-sm font-medium rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 hover:border-gray-500 transition-all duration-200"

@@ -8,9 +8,11 @@ import { Toaster as HotToaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import Index from './pages/Index';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import UserProfilePage from './pages/UserProfilePage';
 
 const queryClient = new QueryClient();
 
@@ -21,6 +23,7 @@ const App = () => (
         <AuthProvider>
           <Layout>
             <Routes>
+              <Route path="/" element={<Index />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/dashboard" element={
@@ -28,8 +31,12 @@ const App = () => (
                   <DashboardPage />
                 </ProtectedRoute>
               } />
-              <Route path="/" element={<Navigate to="/dashboard" />} />
-              <Route path="*" element={<Navigate to="/dashboard" />} />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <UserProfilePage />
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </Layout>
           <HotToaster 
@@ -37,10 +44,11 @@ const App = () => (
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#fff',
-                color: '#333',
+                background: '#374151',
+                color: '#f3f4f6',
                 borderRadius: '12px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+                border: '1px solid #4b5563',
               },
               success: {
                 iconTheme: {

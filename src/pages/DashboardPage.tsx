@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import TodoCard from '../components/TodoCard';
 import TodoForm from '../components/TodoForm';
 import UserProfile from '../components/UserProfile';
-import { Plus, Filter, Search } from 'lucide-react';
+import { Plus, Search, CheckCircle, Circle, List } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type FilterType = 'all' | 'active' | 'completed';
@@ -174,17 +174,43 @@ const DashboardPage: React.FC = () => {
           />
         </div>
         
+        {/* Filter Buttons */}
         <div className="flex items-center space-x-2">
-          <Filter className="w-5 h-5 text-gray-400" />
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as FilterType)}
-            className="px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100"
+          <button
+            onClick={() => setFilter('all')}
+            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              filter === 'all'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+            }`}
           >
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-          </select>
+            <List className="w-4 h-4 mr-2" />
+            All ({todos.length})
+          </button>
+          
+          <button
+            onClick={() => setFilter('active')}
+            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              filter === 'active'
+                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg'
+                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+            }`}
+          >
+            <Circle className="w-4 h-4 mr-2" />
+            Active ({todos.filter(todo => !todo.completed).length})
+          </button>
+          
+          <button
+            onClick={() => setFilter('completed')}
+            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              filter === 'completed'
+                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
+                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+            }`}
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Completed ({todos.filter(todo => todo.completed).length})
+          </button>
         </div>
 
         <button
