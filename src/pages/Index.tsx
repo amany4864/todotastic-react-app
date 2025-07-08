@@ -6,34 +6,6 @@ import { CheckCircle, Clock, Sparkles, ArrowRight, Calendar, Target } from 'luci
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
-      {/* Header */}
-      <header className="bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Sparkles className="w-8 h-8 text-blue-400 mr-3" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                AI TodoApp
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                to="/login"
-                className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">

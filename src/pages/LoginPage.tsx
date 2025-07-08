@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -53,7 +52,7 @@ const LoginPage: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <Sparkles className="w-10 h-10 text-blue-400 mr-3" />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              AI TodoApp
+              AI Planner
             </h1>
           </div>
           <h2 className="text-2xl font-bold text-gray-100">
