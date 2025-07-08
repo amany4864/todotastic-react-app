@@ -24,7 +24,7 @@ export interface UpdateTodoData {
   completed?: boolean;
 }
 
-const API_BASE_URL = 'https://your-backend-url.com'; // Replace with your actual backend URL
+const API_BASE_URL = 'https://aitodo.onrender.com'; // Replace with your actual backend URL
 
 export const todoService = {
   async getTodos(): Promise<Todo[]> {
