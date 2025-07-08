@@ -1,14 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { Todo, todoService, CreateTodoData, UpdateTodoData } from '../services/todoService';
+import { useAuth } from '../contexts/AuthContext';
 import TodoCard from '../components/TodoCard';
 import TodoForm from '../components/TodoForm';
+import UserProfile from '../components/UserProfile';
 import { Plus, Filter, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type FilterType = 'all' | 'active' | 'completed';
 
 const DashboardPage: React.FC = () => {
+  const { user } = useAuth();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,14 +19,6 @@ const DashboardPage: React.FC = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  useEffect(() => {
-    filterTodos();
-  }, [todos, filter, searchQuery]);
 
   const fetchTodos = async () => {
     try {
@@ -136,25 +130,33 @@ const DashboardPage: React.FC = () => {
     setEditingTodo(undefined);
   };
 
-  const activeTodosCount = todos.filter(todo => !todo.completed).length;
-  const completedTodosCount = todos.filter(todo => todo.completed).length;
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  useEffect(() => {
+    filterTodos();
+  }, [todos, filter, searchQuery]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* User Profile */}
+      {user && <UserProfile user={user} todos={todos} />}
+
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Todos</h1>
-        <div className="flex items-center space-x-6 text-sm text-gray-600">
-          <span>{activeTodosCount} active</span>
-          <span>{completedTodosCount} completed</span>
+        <h1 className="text-3xl font-bold text-gray-100 mb-2">My Todos</h1>
+        <div className="flex items-center space-x-6 text-sm text-gray-400">
+          <span>{todos.filter(todo => !todo.completed).length} active</span>
+          <span>{todos.filter(todo => todo.completed).length} completed</span>
           <span>{todos.length} total</span>
         </div>
       </div>
@@ -168,7 +170,7 @@ const DashboardPage: React.FC = () => {
             placeholder="Search todos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400"
           />
         </div>
         
@@ -177,7 +179,7 @@ const DashboardPage: React.FC = () => {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as FilterType)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100"
           >
             <option value="all">All</option>
             <option value="active">Active</option>
@@ -187,7 +189,7 @@ const DashboardPage: React.FC = () => {
 
         <button
           onClick={() => setShowForm(true)}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm"
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           <Plus className="w-5 h-5 mr-2" />
           Add Todo
@@ -197,15 +199,15 @@ const DashboardPage: React.FC = () => {
       {/* Todos Grid */}
       {filteredTodos.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+          <div className="text-gray-500 mb-4">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center">
               <Plus className="w-8 h-8" />
             </div>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-200 mb-2">
             {searchQuery || filter !== 'all' ? 'No todos found' : 'No todos yet'}
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-400 mb-4">
             {searchQuery || filter !== 'all' 
               ? 'Try adjusting your search or filter.' 
               : 'Get started by creating your first todo.'
@@ -214,7 +216,7 @@ const DashboardPage: React.FC = () => {
           {!searchQuery && filter === 'all' && (
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
             >
               <Plus className="w-5 h-5 mr-2" />
               Add Your First Todo
