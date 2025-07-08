@@ -2,8 +2,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Clock, Sparkles, ArrowRight, Calendar, Target } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
       {/* Hero Section */}
@@ -20,19 +23,31 @@ const Index = () => {
             and customize your plan using artificial intelligence for maximum productivity.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/register"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg font-semibold"
-            >
-              Start Managing Tasks
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Link>
-            <Link
-              to="/login"
-              className="inline-flex items-center px-8 py-4 border-2 border-gray-600 text-gray-300 rounded-xl hover:border-gray-500 hover:text-white transition-all duration-200 text-lg font-semibold"
-            >
-              Sign In
-            </Link>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg font-semibold"
+              >
+                Go to Dashboard
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/register"
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg font-semibold"
+                >
+                  Start Managing Tasks
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center px-8 py-4 border-2 border-gray-600 text-gray-300 rounded-xl hover:border-gray-500 hover:text-white transition-all duration-200 text-lg font-semibold"
+                >
+                  Sign In
+                </Link>
+              </>
+            )}
           </div>
         </div>
 

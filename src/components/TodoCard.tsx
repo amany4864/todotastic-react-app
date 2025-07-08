@@ -22,16 +22,21 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onEdit, onDelete, onToggleCom
 
   const isOverdue = todo.due_date && new Date(todo.due_date) < new Date() && !todo.completed;
 
+  const handleToggleComplete = () => {
+    console.log('Toggle complete clicked for todo:', todo.id, 'current status:', todo.completed);
+    onToggleComplete(todo.id, !todo.completed);
+  };
+
   return (
-    <div className={`bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg border border-gray-700/50 p-6 hover:shadow-xl hover:border-gray-600/50 transition-all duration-300 ${
+    <div className={`bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-700/50 p-6 hover:shadow-xl hover:border-gray-600/50 transition-all duration-300 ${
       todo.completed ? 'opacity-75 bg-gradient-to-br from-gray-800/60 to-gray-900/60' : ''
     }`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => onToggleComplete(todo.id, !todo.completed)}
-              className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110
+              onClick={handleToggleComplete}
+              className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer
                 ${todo.completed 
                   ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-green-500 text-white shadow-lg shadow-green-500/25' 
                   : 'border-gray-500 hover:border-green-400 hover:bg-green-400/10'
