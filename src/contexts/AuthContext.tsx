@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -33,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   // Set your backend URL here
-  const API_BASE_URL = 'https://your-backend-url.com'; // Replace with your actual backend URL
+  const API_BASE_URL = 'https://aitodo.onrender.com'; // Replace with your actual backend URL
 
   useEffect(() => {
     const token = Cookies.get('token');
