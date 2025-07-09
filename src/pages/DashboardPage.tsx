@@ -108,18 +108,25 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleToggleComplete = async (id: number, completed: boolean) => {
-    try {
-      const updatedTodo = await todoService.updateTodo(id, { completed });
-      setTodos(prev => prev.map(todo => 
-        todo.id === id ? updatedTodo : todo
-      ));
-      toast.success(completed ? 'Todo completed!' : 'Todo reopened!');
-    } catch (error) {
-      console.error('Failed to update todo:', error);
-      toast.error('Failed to update todo');
+const handleToggleComplete = async (id: number, completed: boolean) => {
+  try {
+    let updatedTodo: Todo;
+    if (completed) {
+      // Mark as complete using the special endpoint
+      updatedTodo = await todoService.markTodoComplete(id);
+    } else {
+      // Fallback to generic update for reopening
+      updatedTodo = await todoService.updateTodo(id, { completed: false });
     }
-  };
+    setTodos(prev => prev.map(todo => 
+      todo.id === id ? updatedTodo : todo
+    ));
+    toast.success(completed ? 'Todo completed!' : 'Todo reopened!');
+  } catch (error) {
+    console.error('Failed to update todo:', error);
+    toast.error('Failed to update todo');
+  }
+};
 
   const handleEditTodo = (todo: Todo) => {
     setEditingTodo(todo);
