@@ -162,14 +162,14 @@ const DashboardPage: React.FC = () => {
       {user && <UserProfile user={user} todos={todos} />}
 
       {/* Header */}
-      <div className="mb-8">
+{/*       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-100 mb-2">My Todos</h1>
         <div className="flex items-center space-x-6 text-sm text-gray-400">
           <span>{todos.filter(todo => !todo.completed).length} active</span>
           <span>{todos.filter(todo => todo.completed).length} completed</span>
           <span>{todos.length} total</span>
         </div>
-      </div>
+      </div> */}
 
       {/* View Toggle Buttons */}
       <div className="mb-6 flex items-center justify-center">
