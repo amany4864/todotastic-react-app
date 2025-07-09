@@ -44,8 +44,7 @@ export const todoService = {
   async deleteTodo(id: number): Promise<void> {
     await axios.delete(`${API_BASE_URL}/todos/${id}`);
   },
-
-  async markTodoComplete(id: number): Promise<Todo> {
+  async toggleTodoComplete(id: number): Promise<Todo> {
     const response = await axios.patch(`${API_BASE_URL}/todos/${id}/complete`);
     return response.data;
   }
