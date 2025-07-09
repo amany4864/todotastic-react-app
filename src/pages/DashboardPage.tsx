@@ -111,18 +111,18 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-const handleToggleComplete = async (id: number) => {
-  try {
-    const updatedTodo = await todoService.toggleTodoComplete(id);
-    setTodos(prev => prev.map(todo => 
-      todo.id === id ? updatedTodo : todo
-    ));
-    toast.success(updatedTodo.completed ? 'Todo completed!' : 'Todo reopened!');
-  } catch (error) {
-    console.error('Failed to toggle todo:', error);
-    toast.error('Failed to update todo');
-  }
-};
+  const handleToggleComplete = async (id: number) => {
+    try {
+      const updatedTodo = await todoService.toggleTodoComplete(id);
+      setTodos(prev => prev.map(todo => 
+        todo.id === id ? updatedTodo : todo
+      ));
+      toast.success(updatedTodo.completed ? 'Todo completed!' : 'Todo reopened!');
+    } catch (error) {
+      console.error('Failed to toggle todo:', error);
+      toast.error('Failed to update todo');
+    }
+  };
 
   const handleEditTodo = (todo: Todo) => {
     setEditingTodo(todo);
@@ -150,119 +150,112 @@ const handleToggleComplete = async (id: number) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* User Profile */}
       {user && <UserProfile user={user} todos={todos} />}
 
-      {/* Header */}
-{/*       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-100 mb-2">My Todos</h1>
-        <div className="flex items-center space-x-6 text-sm text-gray-400">
-          <span>{todos.filter(todo => !todo.completed).length} active</span>
-          <span>{todos.filter(todo => todo.completed).length} completed</span>
-          <span>{todos.length} total</span>
-        </div>
-      </div> */}
-
       {/* View Toggle Buttons */}
       <div className="mb-6 flex items-center justify-center">
-        <div className="inline-flex rounded-lg p-1 bg-gray-800/50 border border-gray-700/50">
+        <div className="inline-flex rounded-lg p-1 bg-gray-800/50 border border-gray-700/50 w-full sm:w-auto">
           <button
             onClick={() => setCurrentView('list')}
-            className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+            className={`flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
               currentView === 'list'
                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
                 : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
             }`}
           >
-            <List className="w-4 h-4 mr-2" />
-            List View
+            <List className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">List</span>
           </button>
           <button
             onClick={() => setCurrentView('calendar')}
-            className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+            className={`flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
               currentView === 'calendar'
                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
                 : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
             }`}
           >
-            <CalendarIcon className="w-4 h-4 mr-2" />
-            Calendar View
+            <CalendarIcon className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Calendar</span>
           </button>
         </div>
       </div>
 
       {/* Controls - Only show for list view */}
       {currentView === 'list' && (
-        <div className="mb-8 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
+        <div className="mb-6 sm:mb-8 space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search todos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-2 sm:py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400 text-sm sm:text-base"
             />
           </div>
           
-          {/* Filter Buttons */}
-          <div className="flex items-center space-x-2">
+          {/* Filter Buttons - Responsive Layout */}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center sm:justify-between">
+            <div className="flex flex-wrap gap-2 sm:gap-2">
+              <button
+                onClick={() => setFilter('all')}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
+                  filter === 'all'
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+                }`}
+              >
+                <List className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                All ({todos.length})
+              </button>
+              
+              <button
+                onClick={() => setFilter('active')}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
+                  filter === 'active'
+                    ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg'
+                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+                }`}
+              >
+                <Circle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Active ({todos.filter(todo => !todo.completed).length})
+              </button>
+              
+              <button
+                onClick={() => setFilter('completed')}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
+                  filter === 'completed'
+                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
+                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+                }`}
+              >
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Done ({todos.filter(todo => todo.completed).length})
+              </button>
+            </div>
+
             <button
-              onClick={() => setFilter('all')}
-              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                filter === 'all'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
-              }`}
+              onClick={() => setShowForm(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
             >
-              <List className="w-4 h-4 mr-2" />
-              All ({todos.length})
-            </button>
-            
-            <button
-              onClick={() => setFilter('active')}
-              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                filter === 'active'
-                  ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg'
-                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
-              }`}
-            >
-              <Circle className="w-4 h-4 mr-2" />
-              Active ({todos.filter(todo => !todo.completed).length})
-            </button>
-            
-            <button
-              onClick={() => setFilter('completed')}
-              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                filter === 'completed'
-                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
-                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
-              }`}
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Completed ({todos.filter(todo => todo.completed).length})
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              Add Todo
             </button>
           </div>
-
-          <button
-            onClick={() => setShowForm(true)}
-            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Add Todo
-          </button>
         </div>
       )}
 
       {/* Add Todo Button for Calendar View */}
       {currentView === 'calendar' && (
-        <div className="mb-8 flex justify-end">
+        <div className="mb-6 sm:mb-8 flex justify-center sm:justify-end">
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Add Todo
           </button>
         </div>
@@ -272,16 +265,16 @@ const handleToggleComplete = async (id: number) => {
       {currentView === 'list' ? (
         // List View
         filteredTodos.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-8 sm:py-12 px-4">
             <div className="text-gray-500 mb-4">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center">
-                <Plus className="w-8 h-8" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center">
+                <Plus className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-gray-200 mb-2">
+            <h3 className="text-lg sm:text-xl font-medium text-gray-200 mb-2">
               {searchQuery || filter !== 'all' ? 'No todos found' : 'No todos yet'}
             </h3>
-            <p className="text-gray-400 mb-4">
+            <p className="text-sm sm:text-base text-gray-400 mb-4">
               {searchQuery || filter !== 'all' 
                 ? 'Try adjusting your search or filter.' 
                 : 'Get started by creating your first todo.'
@@ -292,32 +285,32 @@ const handleToggleComplete = async (id: number) => {
                 onClick={() => setShowForm(true)}
                 className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
               >
-                <Plus className="w-5 h-5 mr-2" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Add Your First Todo
               </button>
             )}
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filteredTodos.map((todo) => (
               <TodoCard
-  key={todo.id}
-  todo={todo}
-  onEdit={handleEditTodo}
-  onDelete={handleDeleteTodo}
-  onToggleComplete={() => handleToggleComplete(todo.id)}
-/>
+                key={todo.id}
+                todo={todo}
+                onEdit={handleEditTodo}
+                onDelete={handleDeleteTodo}
+                onToggleComplete={() => handleToggleComplete(todo.id)}
+              />
             ))}
           </div>
         )
       ) : (
         // Calendar View
         <CalendarView
-  todos={todos}
-  onEditTodo={handleEditTodo}
-  onDeleteTodo={handleDeleteTodo}
-  onToggleComplete={handleToggleComplete}
-/>
+          todos={todos}
+          onEditTodo={handleEditTodo}
+          onDeleteTodo={handleDeleteTodo}
+          onToggleComplete={handleToggleComplete}
+        />
       )}
 
       {/* Todo Form Modal */}
