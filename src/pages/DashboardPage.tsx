@@ -111,25 +111,18 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleToggleComplete = async (id: number, completed: boolean) => {
-    try {
-      let updatedTodo: Todo;
-      if (completed) {
-        // Mark as complete using the special endpoint
-        updatedTodo = await todoService.markTodoComplete(id);
-      } else {
-        // Fallback to generic update for reopening
-        updatedTodo = await todoService.updateTodo(id, { completed: false });
-      }
-      setTodos(prev => prev.map(todo => 
-        todo.id === id ? updatedTodo : todo
-      ));
-      toast.success(completed ? 'Todo completed!' : 'Todo reopened!');
-    } catch (error) {
-      console.error('Failed to update todo:', error);
-      toast.error('Failed to update todo');
-    }
-  };
+const handleToggleComplete = async (id: number) => {
+  try {
+    const updatedTodo = await todoService.toggleTodoComplete(id);
+    setTodos(prev => prev.map(todo => 
+      todo.id === id ? updatedTodo : todo
+    ));
+    toast.success(updatedTodo.completed ? 'Todo completed!' : 'Todo reopened!');
+  } catch (error) {
+    console.error('Failed to toggle todo:', error);
+    toast.error('Failed to update todo');
+  }
+};
 
   const handleEditTodo = (todo: Todo) => {
     setEditingTodo(todo);
@@ -308,23 +301,23 @@ const DashboardPage: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredTodos.map((todo) => (
               <TodoCard
-                key={todo.id}
-                todo={todo}
-                onEdit={handleEditTodo}
-                onDelete={handleDeleteTodo}
-                onToggleComplete={handleToggleComplete}
-              />
+  key={todo.id}
+  todo={todo}
+  onEdit={handleEditTodo}
+  onDelete={handleDeleteTodo}
+  onToggleComplete={() => handleToggleComplete(todo.id)}
+/>
             ))}
           </div>
         )
       ) : (
         // Calendar View
         <CalendarView
-          todos={todos}
-          onEditTodo={handleEditTodo}
-          onDeleteTodo={handleDeleteTodo}
-          onToggleComplete={handleToggleComplete}
-        />
+  todos={todos}
+  onEditTodo={handleEditTodo}
+  onDeleteTodo={handleDeleteTodo}
+  onToggleComplete={handleToggleComplete}
+/>
       )}
 
       {/* Todo Form Modal */}
