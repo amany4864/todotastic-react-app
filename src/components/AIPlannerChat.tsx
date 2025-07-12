@@ -55,16 +55,19 @@ console.log('user:', user);
 console.log('user.id:', user?.id);
 console.log('messages:', updatedMessages);
 
-      const response = await aiService.chatPlan(user._id.toString(), updatedMessages);
+const { reply, tasks } = await aiService.chatPlan(user._id.toString(), updatedMessages);
 
-      
-      
-      const assistantMessage: ChatMessage = {
-        role: 'assistant',
-        content: response
-      };
+const assistantMessage: ChatMessage = {
+  role: 'assistant',
+  content: reply  // ✅ just the reply string
+};
 
-      setMessages([...updatedMessages, assistantMessage]);
+setMessages([...updatedMessages, assistantMessage]);
+
+if (tasks?.length > 0) {
+  setExtractedTasks(tasks); // ✅ directly use extracted tasks from backend
+}
+
 
       // Try to extract structured tasks from the response
       extractTasksFromResponse(response);
