@@ -5,7 +5,9 @@ import TodoCard from '../components/TodoCard';
 import TodoForm from '../components/TodoForm';
 import UserProfile from '../components/UserProfile';
 import CalendarView from '../components/CalendarView';
-import { Plus, Search, CheckCircle, Circle, List, Calendar as CalendarIcon } from 'lucide-react';
+import AIPlannerChat from '../components/AIPlannerChat';
+import { TaskData } from '../services/llmService';
+import { Plus, Search, CheckCircle, Circle, List, Calendar as CalendarIcon, Wand2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type FilterType = 'all' | 'active' | 'completed';
@@ -22,6 +24,7 @@ const DashboardPage: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentView, setCurrentView] = useState<ViewType>('list');
+  const [showAIPlanner, setShowAIPlanner] = useState(false);
 
   const fetchTodos = async () => {
     try {
@@ -133,6 +136,25 @@ const DashboardPage: React.FC = () => {
     setEditingTodo(undefined);
   };
 
+  const handleAIPlanGenerated = async (tasks: TaskData[]) => {
+    // Convert AI tasks to todos and add them
+    for (const task of tasks) {
+      try {
+        const todoData: CreateTodoData = {
+          title: task.title,
+          description: `Estimated time: ${task.expected_time_minutes} minutes`,
+          due_date: task.scheduled_for
+        };
+        const newTodo = await todoService.createTodo(todoData);
+        setTodos(prev => [newTodo, ...prev]);
+      } catch (error) {
+        console.error('Failed to create todo from AI plan:', error);
+      }
+    }
+    toast.success(`Added ${tasks.length} tasks from AI plan!`);
+    setShowAIPlanner(false);
+  };
+
   useEffect(() => {
     fetchTodos();
   }, []);
@@ -237,13 +259,22 @@ const DashboardPage: React.FC = () => {
               </button>
             </div>
 
-            <button
-              onClick={() => setShowForm(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
-            >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Add Todo
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <button
+                onClick={() => setShowAIPlanner(true)}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+              >
+                <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                AI Planner
+              </button>
+              <button
+                onClick={() => setShowForm(true)}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+              >
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                Add Todo
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -251,13 +282,22 @@ const DashboardPage: React.FC = () => {
       {/* Add Todo Button for Calendar View */}
       {currentView === 'calendar' && (
         <div className="mb-6 sm:mb-8 flex justify-center sm:justify-end">
-          <button
-            onClick={() => setShowForm(true)}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-          >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            Add Todo
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setShowAIPlanner(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              AI Planner
+            </button>
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              Add Todo
+            </button>
+          </div>
         </div>
       )}
 
@@ -320,6 +360,14 @@ const DashboardPage: React.FC = () => {
           onSubmit={editingTodo ? handleUpdateTodo : handleCreateTodo}
           onCancel={handleCloseForm}
           isLoading={formLoading}
+        />
+      )}
+
+      {/* AI Planner Chat Modal */}
+      {showAIPlanner && (
+        <AIPlannerChat
+          onPlanGenerated={handleAIPlanGenerated}
+          onClose={() => setShowAIPlanner(false)}
         />
       )}
     </div>
