@@ -44,7 +44,13 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
     setIsLoading(true);
 
     try {
+      console.log('✅ Sending to LLM...');
+console.log('user:', user);
+console.log('user.id:', user?.id);
+console.log('messages:', updatedMessages);
+
       const response = await aiService.chatPlan(user.id.toString(), updatedMessages);
+      
       
       const assistantMessage: ChatMessage = {
         role: 'assistant',
