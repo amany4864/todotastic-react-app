@@ -31,7 +31,13 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !user) return;
+
+if (!user || !user._id) {
+  toast.error("User ID missing — please login again.");
+  console.log("❌ Invalid user object:", user);
+  return;
+}
+
 
     const newUserMessage: ChatMessage = {
       role: 'user',
@@ -49,7 +55,8 @@ console.log('user:', user);
 console.log('user.id:', user?.id);
 console.log('messages:', updatedMessages);
 
-      const response = await aiService.chatPlan(user.id.toString(), updatedMessages);
+      const response = await aiService.chatPlan(user._id.toString(), updatedMessages);
+
       
       
       const assistantMessage: ChatMessage = {
