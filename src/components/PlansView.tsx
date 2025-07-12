@@ -29,11 +29,13 @@ const PlansView: React.FC<PlansViewProps> = ({ refreshTrigger }) => {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   const fetchPlans = async () => {
-    if (!user || !user.id) return;
+    if (!user || !user._id) return;
+
 
     try {
       setLoading(true);
-      const plansData = await aiService.getPlans(user.id.toString());
+      const plansData = await aiService.getPlans(user._id.toString());
+
       setPlans(Array.isArray(plansData) ? plansData : []);
     } catch (error) {
       console.error('Failed to fetch plans:', error);
