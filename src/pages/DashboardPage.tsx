@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Todo, todoService, CreateTodoData, UpdateTodoData } from '../services/todoService';
 import { useAuth } from '../contexts/AuthContext';
 import TodoCard from '../components/TodoCard';
-import TodoForm from '../components/TodoForm';
+import TaskForm from '../components/TodoForm';
 import UserProfile from '../components/UserProfile';
 import CalendarView from '../components/CalendarView';
+import PlansView from '../components/PlansView';
 import AIPlannerChat from '../components/AIPlannerChat';
 import { TaskData } from '../services/llmService';
-import { Plus, Search, CheckCircle, Circle, List, Calendar as CalendarIcon, Wand2 } from 'lucide-react';
+import { Plus, Search, CheckCircle, Circle, List, Calendar as CalendarIcon, Wand2, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type FilterType = 'all' | 'active' | 'completed';
-type ViewType = 'list' | 'calendar';
+type ViewType = 'plans' | 'list' | 'calendar';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -23,16 +24,17 @@ const DashboardPage: React.FC = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentView, setCurrentView] = useState<ViewType>('list');
+  const [currentView, setCurrentView] = useState<ViewType>('plans');
   const [showAIPlanner, setShowAIPlanner] = useState(false);
+  const [plansRefreshTrigger, setPlansRefreshTrigger] = useState(0);
 
   const fetchTodos = async () => {
     try {
       const fetchedTodos = await todoService.getTodos();
       setTodos(fetchedTodos);
     } catch (error) {
-      console.error('Failed to fetch todos:', error);
-      toast.error('Failed to load todos');
+      console.error('Failed to fetch tasks:', error);
+      toast.error('Failed to load tasks');
     } finally {
       setLoading(false);
     }
@@ -71,10 +73,10 @@ const DashboardPage: React.FC = () => {
       const newTodo = await todoService.createTodo(data);
       setTodos(prev => [newTodo, ...prev]);
       setShowForm(false);
-      toast.success('Todo created successfully!');
+      toast.success('Task created successfully!');
     } catch (error) {
-      console.error('Failed to create todo:', error);
-      toast.error('Failed to create todo');
+      console.error('Failed to create task:', error);
+      toast.error('Failed to create task');
     } finally {
       setFormLoading(false);
     }
@@ -90,27 +92,27 @@ const DashboardPage: React.FC = () => {
         todo.id === editingTodo.id ? updatedTodo : todo
       ));
       setEditingTodo(undefined);
-      toast.success('Todo updated successfully!');
+      toast.success('Task updated successfully!');
     } catch (error) {
-      console.error('Failed to update todo:', error);
-      toast.error('Failed to update todo');
+      console.error('Failed to update task:', error);
+      toast.error('Failed to update task');
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleDeleteTodo = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this todo?')) {
+    if (!window.confirm('Are you sure you want to delete this task?')) {
       return;
     }
 
     try {
       await todoService.deleteTodo(id);
       setTodos(prev => prev.filter(todo => todo.id !== id));
-      toast.success('Todo deleted successfully!');
+      toast.success('Task deleted successfully!');
     } catch (error) {
-      console.error('Failed to delete todo:', error);
-      toast.error('Failed to delete todo');
+      console.error('Failed to delete task:', error);
+      toast.error('Failed to delete task');
     }
   };
 
@@ -120,10 +122,10 @@ const DashboardPage: React.FC = () => {
       setTodos(prev => prev.map(todo => 
         todo.id === id ? updatedTodo : todo
       ));
-      toast.success(updatedTodo.completed ? 'Todo completed!' : 'Todo reopened!');
+      toast.success(updatedTodo.completed ? 'Task completed!' : 'Task reopened!');
     } catch (error) {
-      console.error('Failed to toggle todo:', error);
-      toast.error('Failed to update todo');
+      console.error('Failed to toggle task:', error);
+      toast.error('Failed to update task');
     }
   };
 
@@ -148,11 +150,12 @@ const DashboardPage: React.FC = () => {
         const newTodo = await todoService.createTodo(todoData);
         setTodos(prev => [newTodo, ...prev]);
       } catch (error) {
-        console.error('Failed to create todo from AI plan:', error);
+        console.error('Failed to create task from AI plan:', error);
       }
     }
     toast.success(`Added ${tasks.length} tasks from AI plan!`);
     setShowAIPlanner(false);
+    setPlansRefreshTrigger(prev => prev + 1);
   };
 
   useEffect(() => {
@@ -179,6 +182,17 @@ const DashboardPage: React.FC = () => {
       {/* View Toggle Buttons */}
       <div className="mb-6 flex items-center justify-center">
         <div className="inline-flex rounded-lg p-1 bg-gray-800/50 border border-gray-700/50 w-full sm:w-auto">
+          <button
+            onClick={() => setCurrentView('plans')}
+            className={`flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+              currentView === 'plans'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <MapPin className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Plans</span>
+          </button>
           <button
             onClick={() => setCurrentView('list')}
             className={`flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
@@ -212,7 +226,7 @@ const DashboardPage: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search todos..."
+              placeholder="Search tasks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 sm:py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400 text-sm sm:text-base"
@@ -272,15 +286,15 @@ const DashboardPage: React.FC = () => {
                 className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Add Todo
+                Add Task
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add Todo Button for Calendar View */}
-      {currentView === 'calendar' && (
+      {/* Add Task Button for Calendar and Plans View */}
+      {(currentView === 'calendar' || currentView === 'plans') && (
         <div className="mb-6 sm:mb-8 flex justify-center sm:justify-end">
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <button
@@ -295,14 +309,17 @@ const DashboardPage: React.FC = () => {
               className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Add Todo
+              Add Task
             </button>
           </div>
         </div>
       )}
 
       {/* Content based on current view */}
-      {currentView === 'list' ? (
+      {currentView === 'plans' ? (
+        // Plans View
+        <PlansView refreshTrigger={plansRefreshTrigger} />
+      ) : currentView === 'list' ? (
         // List View
         filteredTodos.length === 0 ? (
           <div className="text-center py-8 sm:py-12 px-4">
@@ -312,12 +329,12 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <h3 className="text-lg sm:text-xl font-medium text-gray-200 mb-2">
-              {searchQuery || filter !== 'all' ? 'No todos found' : 'No todos yet'}
+              {searchQuery || filter !== 'all' ? 'No tasks found' : 'No tasks yet'}
             </h3>
             <p className="text-sm sm:text-base text-gray-400 mb-4">
               {searchQuery || filter !== 'all' 
                 ? 'Try adjusting your search or filter.' 
-                : 'Get started by creating your first todo.'
+                : 'Get started by creating your first task.'
               }
             </p>
             {!searchQuery && filter === 'all' && (
@@ -326,7 +343,7 @@ const DashboardPage: React.FC = () => {
                 className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg"
               >
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Add Your First Todo
+                Add Your First Task
               </button>
             )}
           </div>
@@ -353,9 +370,9 @@ const DashboardPage: React.FC = () => {
         />
       )}
 
-      {/* Todo Form Modal */}
+      {/* Task Form Modal */}
       {(showForm || editingTodo) && (
-        <TodoForm
+        <TaskForm
           todo={editingTodo}
           onSubmit={editingTodo ? handleUpdateTodo : handleCreateTodo}
           onCancel={handleCloseForm}

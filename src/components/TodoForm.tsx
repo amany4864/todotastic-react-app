@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Todo, CreateTodoData, UpdateTodoData } from '../services/todoService';
 import { Calendar, X } from 'lucide-react';
 
-interface TodoFormProps {
+interface TaskFormProps {
   todo?: Todo;
   onSubmit: (data: CreateTodoData | UpdateTodoData) => void;
   onCancel: () => void;
   isLoading: boolean;
 }
 
-const TodoForm: React.FC<TodoFormProps> = ({ todo, onSubmit, onCancel, isLoading }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ todo, onSubmit, onCancel, isLoading }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -60,7 +60,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ todo, onSubmit, onCancel, isLoading
       <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-2xl border border-gray-700/50 w-full max-w-md sm:max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-100">
-            {todo ? 'Edit Todo' : 'Add New Todo'}
+            {todo ? 'Edit Task' : 'Add New Task'}
           </h2>
           <button
             onClick={onCancel}
@@ -83,7 +83,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ todo, onSubmit, onCancel, isLoading
               className={`w-full px-3 py-2 sm:py-3 bg-gray-700/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400 text-sm sm:text-base ${
                 errors.title ? 'border-red-500' : 'border-gray-600'
               }`}
-              placeholder="Enter todo title"
+              placeholder="Enter task title"
             />
             {errors.title && <p className="mt-1 text-sm text-red-400">{errors.title}</p>}
           </div>
@@ -134,7 +134,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ todo, onSubmit, onCancel, isLoading
               disabled={isLoading}
               className="flex-1 px-4 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg text-sm sm:text-base"
             >
-              {isLoading ? 'Saving...' : (todo ? 'Update' : 'Add Todo')}
+              {isLoading ? 'Saving...' : (todo ? 'Update' : 'Add Task')}
             </button>
           </div>
         </form>
@@ -143,4 +143,4 @@ const TodoForm: React.FC<TodoFormProps> = ({ todo, onSubmit, onCancel, isLoading
   );
 };
 
-export default TodoForm;
+export default TaskForm;

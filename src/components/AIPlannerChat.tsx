@@ -32,7 +32,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!user || !user._id) {
+    if (!user || !user.id) {
       toast.error('User ID missing — please login again.');
       console.log('❌ Invalid user object:', user);
       return;
@@ -51,10 +51,10 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
     try {
       console.log('✅ Sending to LLM...');
       console.log('user:', user);
-      console.log('user.id:', user?._id);
+      console.log('user.id:', user?.id);
       console.log('messages:', updatedMessages);
 
-      const { reply, tasks } = await aiService.chatPlan(user._id.toString(), updatedMessages);
+      const { reply, tasks } = await aiService.chatPlan(user.id.toString(), updatedMessages);
 
       const assistantMessage: ChatMessage = {
         role: 'assistant',
@@ -87,7 +87,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
     try {
       setIsLoading(true);
       const plan = {
-        user_id: user._id.toString(),
+        user_id: user.id.toString(),
         tasks: extractedTasks,
       };
 
@@ -102,7 +102,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
 
       const confirmMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Great! I\'ve saved your structured plan. The tasks have been added to your todo list. Is there anything else you\'d like to plan?',
+        content: 'Great! I\'ve saved your structured plan. The tasks have been added to your task list. Is there anything else you\'d like to plan?',
       };
       setMessages((prev) => [...prev, confirmMessage]);
 
