@@ -20,13 +20,17 @@ export interface StructuredPlan {
 }
 
 export const aiService = {
-  async chatPlan(userId: string, messages: ChatMessage[]): Promise<string> {
+  // FIXED: Updated to return { reply, tasks }
+  async chatPlan(
+    userId: string,
+    messages: ChatMessage[]
+  ): Promise<{ reply: string; tasks: TaskData[] }> {
     console.log("📡 Calling /ai/chat-plan with:", { userId, messages });
     const response = await axios.post(`${API_BASE_URL}/ai/chat-plan`, {
       user_id: userId,
       messages
     });
-    return response.data;
+    return response.data; // should be { reply: string, tasks: TaskData[] }
   },
 
   async saveStructuredPlan(plan: StructuredPlan): Promise<string> {
@@ -40,7 +44,7 @@ export const aiService = {
   }
 };
 
-// Keep backwards compatibility
+// Optional legacy fallback (unused)
 export async function getAIPlan(prompt: string): Promise<string> {
   const res = await axios.post("/plan", { prompt });
   return res.data.plan;
