@@ -26,16 +26,18 @@ const PlansView: React.FC<PlansViewProps> = ({ refreshTrigger }) => {
   const { user } = useAuth();
   const [plans, setPlans] = useState<PlanData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+
+  // ✅ Use local date format in IST
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toLocaleDateString('en-CA') // 'YYYY-MM-DD'
+  );
 
   const fetchPlans = async () => {
     if (!user || !user._id) return;
 
-
     try {
       setLoading(true);
       const plansData = await aiService.getPlans(user._id.toString());
-
       setPlans(Array.isArray(plansData) ? plansData : []);
     } catch (error) {
       console.error('Failed to fetch plans:', error);
@@ -50,17 +52,21 @@ const PlansView: React.FC<PlansViewProps> = ({ refreshTrigger }) => {
     fetchPlans();
   }, [user, refreshTrigger]);
 
-  // Get tasks for the selected date
+  // ✅ Get tasks matching selected date in IST
   const getTasksForDate = (date: string) => {
-    return plans.flatMap(plan => 
-      plan.tasks.filter(task => {
-        const taskDate = new Date(task.scheduled_for).toISOString().split('T')[0];
-        return taskDate === date;
-      })
-    ).sort((a, b) => new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime());
+    return plans
+      .flatMap(plan =>
+        plan.tasks.filter(task => {
+          const taskDate = new Date(task.scheduled_for).toLocaleDateString('en-CA');
+          return taskDate === date;
+        })
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime()
+      );
   };
 
-  // Get next 7 days
   const getNextSevenDays = () => {
     const days = [];
     for (let i = 0; i < 7; i++) {
@@ -72,17 +78,17 @@ const PlansView: React.FC<PlansViewProps> = ({ refreshTrigger }) => {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(dateString).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString([], { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString([], {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
     });
   };
 
