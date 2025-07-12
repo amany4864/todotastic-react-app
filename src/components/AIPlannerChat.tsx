@@ -32,7 +32,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!user || !user.id) {
+    if (!user || !user._id) {
       toast.error('User ID missing — please login again.');
       console.log('❌ Invalid user object:', user);
       return;
@@ -51,10 +51,11 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
     try {
       console.log('✅ Sending to LLM...');
       console.log('user:', user);
-      console.log('user.id:', user?.id);
+      // console.log('user._id:', user?.id);
       console.log('messages:', updatedMessages);
 
-      const { reply, tasks } = await aiService.chatPlan(user.id.toString(), updatedMessages);
+      const { reply, tasks } = await aiService.chatPlan(user._id.toString(), updatedMessages);
+
 
       const assistantMessage: ChatMessage = {
         role: 'assistant',
@@ -87,7 +88,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
     try {
       setIsLoading(true);
       const plan = {
-        user_id: user.id.toString(),
+        user_id: user._id.toString(),
         tasks: extractedTasks,
       };
 
