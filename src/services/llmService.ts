@@ -21,6 +21,7 @@ export interface StructuredPlan {
 
 export const aiService = {
   async chatPlan(userId: string, messages: ChatMessage[]): Promise<string> {
+    console.log("📡 Calling /ai/chat-plan with:", { userId, messages });
     const response = await axios.post(`${API_BASE_URL}/ai/chat-plan`, {
       user_id: userId,
       messages
