@@ -32,15 +32,25 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!user || !user._id) {
+    if (!user || !user.id) {
       toast.error('User ID missing — please login again.');
       console.log('❌ Invalid user object:', user);
       return;
     }
 
+    // Get current Indian date/time context
+    const now = new Date();
+    const indianTime = new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'full',
+      timeStyle: 'short'
+    }).format(now);
+
+    const contextualMessage = `Current date and time in India: ${indianTime}\n\nUser request: ${inputMessage}`;
+
     const newUserMessage: ChatMessage = {
       role: 'user',
-      content: inputMessage,
+      content: contextualMessage,
     };
 
     const updatedMessages = [...messages, newUserMessage];
@@ -54,7 +64,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
       // console.log('user._id:', user?.id);
       console.log('messages:', updatedMessages);
 
-      const { reply, tasks } = await aiService.chatPlan(user._id.toString(), updatedMessages);
+      const { reply, tasks } = await aiService.chatPlan(user.id.toString(), updatedMessages);
 
 
       const assistantMessage: ChatMessage = {
@@ -88,7 +98,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
     try {
       setIsLoading(true);
       const plan = {
-        user_id: user._id.toString(),
+        user_id: user.id.toString(),
         tasks: extractedTasks,
       };
 

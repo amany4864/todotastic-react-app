@@ -317,8 +317,10 @@ const DashboardPage: React.FC = () => {
 
       {/* Content based on current view */}
       {currentView === 'plans' ? (
-        // Plans View
-        <PlansView refreshTrigger={plansRefreshTrigger} />
+        // Plans View - Temporarily commented out
+        <div className="text-center py-12">
+          <p className="text-gray-400">Plans view is temporarily disabled</p>
+        </div>
       ) : currentView === 'list' ? (
         // List View
         filteredTodos.length === 0 ? (
