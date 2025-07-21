@@ -38,7 +38,7 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
       return;
     }
 
-    // Get current Indian date/time context
+    // Get current Indian date/time context with explicit today reference
     const now = new Date();
     const indianTime = new Intl.DateTimeFormat('en-IN', {
       timeZone: 'Asia/Kolkata',
@@ -46,7 +46,17 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
       timeStyle: 'short'
     }).format(now);
 
-    const contextualMessage = `Current date and time in India: ${indianTime}\n\nUser request: ${inputMessage}`;
+    const todayDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Kolkata'
+    }).format(now); // YYYY-MM-DD format
+
+    const contextualMessage = `IMPORTANT CONTEXT:
+- Current date and time in India (IST): ${indianTime}
+- Today's date (use this for "today"): ${todayDate}
+- When user says "today", use: ${todayDate}
+- When user says "tomorrow", use: ${new Date(now.getTime() + 24*60*60*1000).toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'})}
+
+User request: ${inputMessage}`;
 
     const newUserMessage: ChatMessage = {
       role: 'user',

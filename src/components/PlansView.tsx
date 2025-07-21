@@ -178,11 +178,20 @@ const PlansView: React.FC<PlansViewProps> = ({ refreshTrigger }) => {
               <CalendarDays className="w-8 h-8 text-gray-500" />
             </div>
             <h3 className="text-lg font-medium text-gray-200 mb-2">
-              No tasks planned for this day
+              Coming Soon
             </h3>
-            <p className="text-gray-400">
-              Use the AI Planner to create a structured plan for your day
+            <p className="text-gray-400 mb-4">
+              AI-powered planning is coming soon. For now, you can manage your tasks in the list view.
             </p>
+            <button
+              onClick={() => {
+                // Trigger a custom event to switch to list view
+                window.dispatchEvent(new CustomEvent('switchToListView'));
+              }}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+            >
+              Switch to List View
+            </button>
           </div>
         ) : (
           <div className="space-y-4">

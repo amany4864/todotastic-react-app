@@ -166,6 +166,18 @@ const DashboardPage: React.FC = () => {
     filterTodos();
   }, [todos, filter, searchQuery]);
 
+  // Listen for switch to list view event
+  useEffect(() => {
+    const handleSwitchToListView = () => {
+      setCurrentView('list');
+    };
+
+    window.addEventListener('switchToListView', handleSwitchToListView);
+    return () => {
+      window.removeEventListener('switchToListView', handleSwitchToListView);
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
@@ -317,10 +329,8 @@ const DashboardPage: React.FC = () => {
 
       {/* Content based on current view */}
       {currentView === 'plans' ? (
-        // Plans View - Temporarily commented out
-        <div className="text-center py-12">
-          <p className="text-gray-400">Plans view is temporarily disabled</p>
-        </div>
+        // Plans View
+        <PlansView refreshTrigger={plansRefreshTrigger} />
       ) : currentView === 'list' ? (
         // List View
         filteredTodos.length === 0 ? (
