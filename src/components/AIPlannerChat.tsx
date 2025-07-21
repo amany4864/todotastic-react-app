@@ -32,9 +32,21 @@ const AIPlannerChat: React.FC<AIPlannerChatProps> = ({ onPlanGenerated, onClose 
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!user || !user.id) {
+    console.log('🔍 DEBUG: Full user object:', user);
+    console.log('🔍 DEBUG: user.id:', user?.id);
+    console.log('🔍 DEBUG: user._id:', user?._id);
+    
+    if (!user) {
+      toast.error('Not logged in — please login again.');
+      console.log('❌ No user object found');
+      return;
+    }
+
+    // Try both id and _id to see which one exists
+    const userId = user.id || user._id;
+    if (!userId) {
       toast.error('User ID missing — please login again.');
-      console.log('❌ Invalid user object:', user);
+      console.log('❌ No user ID found. User object:', user);
       return;
     }
 
@@ -74,7 +86,7 @@ User request: ${inputMessage}`;
       // console.log('user._id:', user?.id);
       console.log('messages:', updatedMessages);
 
-      const { reply, tasks } = await aiService.chatPlan(user.id.toString(), updatedMessages);
+      const { reply, tasks } = await aiService.chatPlan(userId.toString(), updatedMessages);
 
 
       const assistantMessage: ChatMessage = {
@@ -103,12 +115,13 @@ User request: ${inputMessage}`;
   };
 
   const handleSavePlan = async () => {
-    if (!user || extractedTasks.length === 0) return;
+    const userId = user?.id || user?._id;
+    if (!user || !userId || extractedTasks.length === 0) return;
 
     try {
       setIsLoading(true);
       const plan = {
-        user_id: user.id.toString(),
+        user_id: userId.toString(),
         tasks: extractedTasks,
       };
 

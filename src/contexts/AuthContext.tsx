@@ -4,7 +4,8 @@ import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
 
 interface User {
-  id: number;
+  id?: number;
+  _id?: string;
   email: string;
   username?: string;
 }
@@ -47,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchUser = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/me`);
+      console.log('🔍 DEBUG: Backend user response:', response.data);
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user:', error);
